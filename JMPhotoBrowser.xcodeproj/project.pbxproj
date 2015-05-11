@@ -14,6 +14,8 @@
 		3CF9FDE71B01083F007F22B6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3CF9FDE61B01083F007F22B6 /* Images.xcassets */; };
 		3CF9FDEA1B01083F007F22B6 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3CF9FDE81B01083F007F22B6 /* LaunchScreen.xib */; };
 		3CF9FDF61B01083F007F22B6 /* JMPhotoBrowserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CF9FDF51B01083F007F22B6 /* JMPhotoBrowserTests.m */; };
+		3CF9FE041B01085E007F22B6 /* JMPhotoBrowserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CF9FE011B01085E007F22B6 /* JMPhotoBrowserCell.m */; };
+		3CF9FE051B01085E007F22B6 /* JMPhotoBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CF9FE031B01085E007F22B6 /* JMPhotoBrowserView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,10 @@
 		3CF9FDEF1B01083F007F22B6 /* JMPhotoBrowserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JMPhotoBrowserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CF9FDF41B01083F007F22B6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3CF9FDF51B01083F007F22B6 /* JMPhotoBrowserTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JMPhotoBrowserTests.m; sourceTree = "<group>"; };
+		3CF9FE001B01085E007F22B6 /* JMPhotoBrowserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JMPhotoBrowserCell.h; sourceTree = "<group>"; };
+		3CF9FE011B01085E007F22B6 /* JMPhotoBrowserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JMPhotoBrowserCell.m; sourceTree = "<group>"; };
+		3CF9FE021B01085E007F22B6 /* JMPhotoBrowserView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JMPhotoBrowserView.h; sourceTree = "<group>"; };
+		3CF9FE031B01085E007F22B6 /* JMPhotoBrowserView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JMPhotoBrowserView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +87,7 @@
 		3CF9FDD81B01083F007F22B6 /* JMPhotoBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				3CF9FDFF1B01085E007F22B6 /* JMPhotoBrowser */,
 				3CF9FDDD1B01083F007F22B6 /* AppDelegate.h */,
 				3CF9FDDE1B01083F007F22B6 /* AppDelegate.m */,
 				3CF9FDE01B01083F007F22B6 /* ViewController.h */,
@@ -117,6 +124,17 @@
 				3CF9FDF41B01083F007F22B6 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3CF9FDFF1B01085E007F22B6 /* JMPhotoBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				3CF9FE001B01085E007F22B6 /* JMPhotoBrowserCell.h */,
+				3CF9FE011B01085E007F22B6 /* JMPhotoBrowserCell.m */,
+				3CF9FE021B01085E007F22B6 /* JMPhotoBrowserView.h */,
+				3CF9FE031B01085E007F22B6 /* JMPhotoBrowserView.m */,
+			);
+			path = JMPhotoBrowser;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -219,7 +237,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CF9FE041B01085E007F22B6 /* JMPhotoBrowserCell.m in Sources */,
 				3CF9FDE21B01083F007F22B6 /* ViewController.m in Sources */,
+				3CF9FE051B01085E007F22B6 /* JMPhotoBrowserView.m in Sources */,
 				3CF9FDDF1B01083F007F22B6 /* AppDelegate.m in Sources */,
 				3CF9FDDC1B01083F007F22B6 /* main.m in Sources */,
 			);
