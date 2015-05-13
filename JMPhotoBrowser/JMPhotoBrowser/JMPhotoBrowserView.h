@@ -33,5 +33,9 @@
 
 - (JMPhotoBrowserCell *)dequeueReusableCell;
 
+- (void)setContentOffset:(CGPoint)contentOffset;
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
+- (void)setContentOffset:(CGPoint)contentOffset animatedTime:(CGFloat)animatedTime;
+
 @end
 

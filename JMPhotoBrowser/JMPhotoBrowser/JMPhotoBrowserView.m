@@ -19,7 +19,7 @@
 
 @implementation JMPhotoBrowserView
 @synthesize dataSource = _dataSource;
-@synthesize delegate = _delegate;
+@synthesize delegate;
 
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -46,15 +46,15 @@
             array;
         });
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self update];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self initScroll];
         });
     }
     
     return self;
 }
 
-- (void)update
+- (void)initScroll
 {
     for (NSInteger i = 0; i < [self getNumbersOfCell]; i++) {
         
@@ -69,12 +69,50 @@
     NSInteger contentSize_x = 0;
     for (int i = 0; i < [self getNumbersOfCell]; i++) {
         CGFloat w = [self getWidthWithIndex:i];
-        CGFloat h = [self getHeightWithIndex:i];
-        
         contentSize_x += w;
-        
-        self.scroll.contentSize = CGSizeMake(contentSize_x, h);
+
     }
+
+    if (contentSize_x < CGRectGetWidth(self.bounds)) {
+        contentSize_x = CGRectGetWidth(self.bounds);
+    }
+    
+    self.scroll.contentSize = CGSizeMake(contentSize_x, CGRectGetHeight(self.bounds));
+}
+
+
+#pragma mark -
+#pragma mark set
+
+- (void)reloadData
+{
+    for (int i = 0; i < self.showCells.count; i++) {
+        
+        JMPhotoBrowserCell *cell = self.showCells[i];
+        
+        [self removeCellWithIndex:cell.index];
+
+    }
+    
+    [self initScroll];
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset
+{
+    self.scroll.contentOffset = contentOffset;
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+{
+    [self.scroll setContentOffset:contentOffset animated:animated];
+    
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset animatedTime:(CGFloat)animatedTime
+{
+    [UIView animateWithDuration:animatedTime animations:^{
+        self.scroll.contentOffset = contentOffset;
+    }];
 }
 
 
@@ -100,15 +138,15 @@
     return w;
 }
 
-- (CGFloat)getHeightWithIndex:(NSInteger)index
-{
-    CGFloat h = 0;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(photoBrowser:heightForIndex:)]) {
-        h = [self.delegate photoBrowser:self heightForIndex:index];
-    }
-    
-    return h;
-}
+//- (CGFloat)getHeightWithIndex:(NSInteger)index
+//{
+//    CGFloat h = 0;
+//    if (self.delegate && [self.delegate respondsToSelector:@selector(photoBrowser:heightForIndex:)]) {
+//        h = [self.delegate photoBrowser:self heightForIndex:index];
+//    }
+//    
+//    return h;
+//}
 
 - (CGFloat)getXWithIndex:(NSInteger)index
 {
@@ -148,21 +186,25 @@
         return;
     }
  
-    NSLog(@"add cell with index = %ld", index);
     
     CGFloat x = [self getXWithIndex:index];
     CGFloat w = [self getWidthWithIndex:index];
-    CGFloat h = [self getHeightWithIndex:index];
-    CGFloat y = CGRectGetMidY(self.frame) - h / 2;
+//    CGFloat h = [self getHeightWithIndex:index];
+    CGFloat y = 0;
     
     if (self.dataSource && [self.dataSource respondsToSelector:@selector(photoBrowser:cellAtIndex:)]) {
         JMPhotoBrowserCell *cell = [self.dataSource photoBrowser:self cellAtIndex:index];
+        
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//           [self.scroll addSubview:cell];
+//        });
+        
         [self.scroll addSubview:cell];
-        
         cell.backgroundColor = [UIColor redColor];
-        cell.frame = CGRectMake(x, y, w, h);
+        cell.frame = CGRectMake(x, y, w, CGRectGetHeight(self.bounds));
         cell.index = index;
-        
+        NSLog(@"add cell with index = %ld", index);
+
         if (isBefore) {
             [self.showCells insertObject:cell atIndex:0];
         }
