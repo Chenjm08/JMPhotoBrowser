@@ -6,18 +6,17 @@
 //  Copyright (c) 2015年 chenjiemin. All rights reserved.
 //
 
-#import "JMPhotoBrowserView.h"
+#import "JMPhotoBrowseView.h"
 
-@interface JMPhotoBrowserView () <UIScrollViewDelegate>
+@interface JMPhotoBrowseView () <UIScrollViewDelegate>
 
-@property (nonatomic, strong) UIScrollView *scroll;
 @property (nonatomic, strong) NSMutableArray *showCells;
 @property (nonatomic, strong) NSMutableArray *reusableCells;
 
 @end
 
 
-@implementation JMPhotoBrowserView
+@implementation JMPhotoBrowseView
 @synthesize dataSource = _dataSource;
 @synthesize delegate;
 
@@ -26,15 +25,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        self.scroll = ({
-            UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:frame];
-            [self addSubview:scroll];
-//            scroll.pagingEnabled = YES;
-            scroll.showsHorizontalScrollIndicator = NO;
-            scroll.showsVerticalScrollIndicator = NO;
-            scroll.delegate = self;
-            scroll;
-        });
+
         
         self.showCells = ({
             NSMutableArray *array = [[NSMutableArray alloc] init];
@@ -47,14 +38,14 @@
         });
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self initScroll];
+            [self loadScroll];
         });
     }
     
     return self;
 }
 
-- (void)initScroll
+- (void)loadScroll
 {
     for (NSInteger i = 0; i < [self getNumbersOfCell]; i++) {
         
@@ -78,6 +69,10 @@
     }
     
     self.scroll.contentSize = CGSizeMake(contentSize_x, CGRectGetHeight(self.bounds));
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(browseViewDidLoad:showCells:)]) {
+        [self.delegate browseViewDidLoad:self showCells:self.showCells];
+    }
 }
 
 
@@ -88,31 +83,13 @@
 {
     for (int i = 0; i < self.showCells.count; i++) {
         
-        JMPhotoBrowserCell *cell = self.showCells[i];
+        JMPhotoBrowseCell *cell = self.showCells[i];
         
         [self removeCellWithIndex:cell.index];
 
     }
     
-    [self initScroll];
-}
-
-- (void)setContentOffset:(CGPoint)contentOffset
-{
-    self.scroll.contentOffset = contentOffset;
-}
-
-- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
-{
-    [self.scroll setContentOffset:contentOffset animated:animated];
-    
-}
-
-- (void)setContentOffset:(CGPoint)contentOffset animatedTime:(CGFloat)animatedTime
-{
-    [UIView animateWithDuration:animatedTime animations:^{
-        self.scroll.contentOffset = contentOffset;
-    }];
+    [self loadScroll];
 }
 
 
@@ -122,8 +99,8 @@
 - (NSInteger)getNumbersOfCell
 {
     NSInteger count = 0;
-    if (self.dataSource && [self.dataSource respondsToSelector:@selector(numberOfPhotosInPhotoBrowser:)]) {
-        count = [self.dataSource numberOfPhotosInPhotoBrowser:self];
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(numberOfCellsInBrowseView:)]) {
+        count = [self.dataSource numberOfCellsInBrowseView:self];
     }
     return count;
 }
@@ -131,8 +108,8 @@
 - (CGFloat)getWidthWithIndex:(NSInteger)index
 {
     CGFloat w = 0;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(photoBrowser:widthForIndex:)]) {
-        w = [self.delegate photoBrowser:self widthForIndex:index];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(browseView:widthForIndex:)]) {
+        w = [self.delegate browseView:self widthForIndex:index];
     }
     
     return w;
@@ -177,6 +154,7 @@
     return index;
 }
 
+
 #pragma mark -
 #pragma mark cell
 
@@ -189,21 +167,19 @@
     
     CGFloat x = [self getXWithIndex:index];
     CGFloat w = [self getWidthWithIndex:index];
-//    CGFloat h = [self getHeightWithIndex:index];
     CGFloat y = 0;
     
-    if (self.dataSource && [self.dataSource respondsToSelector:@selector(photoBrowser:cellAtIndex:)]) {
-        JMPhotoBrowserCell *cell = [self.dataSource photoBrowser:self cellAtIndex:index];
-        
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//           [self.scroll addSubview:cell];
-//        });
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(browseView:cellAtIndex:)]) {
+        JMBrowseCell *cell = [self.dataSource browseView:self cellAtIndex:index];
         
         [self.scroll addSubview:cell];
-        cell.backgroundColor = [UIColor redColor];
+        cell.backgroundColor = [UIColor whiteColor];
         cell.frame = CGRectMake(x, y, w, CGRectGetHeight(self.bounds));
         cell.index = index;
-        NSLog(@"add cell with index = %ld", index);
+        
+        [cell addTarget:self action:@selector(touchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+        
+        NSLog(@"add cell with index = %d", index);
 
         if (isBefore) {
             [self.showCells insertObject:cell atIndex:0];
@@ -216,11 +192,11 @@
 
 - (void)removeCellWithIndex:(NSInteger)index
 {
-    NSLog(@"remove cell with index = %ld", index);
+    NSLog(@"remove cell with index = %d", index);
 
     __block NSInteger arrayIndex = -1;
     [self.showCells enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        JMPhotoBrowserCell *cell = obj;
+        JMPhotoBrowseCell *cell = obj;
         if (cell.index == index) {
             arrayIndex = idx;
             *stop = YES;
@@ -228,7 +204,7 @@
     }];
     
     if (arrayIndex > -1) {
-        JMPhotoBrowserCell *cell = self.showCells[arrayIndex];
+        JMPhotoBrowseCell *cell = self.showCells[arrayIndex];
         
         [self enqueueReusableCell:cell];
         
@@ -241,49 +217,49 @@
 #pragma mark -
 #pragma mark queue
 
-- (void)enqueueReusableCell:(JMPhotoBrowserCell *)cell
+- (void)enqueueReusableCell:(JMPhotoBrowseCell *)cell
 {
     if (cell) {
         [self.reusableCells addObject:cell];
     }
 }
 
-- (JMPhotoBrowserCell *)dequeueReusableCell
+- (JMPhotoBrowseCell *)dequeueReusableCell
 {
-    JMPhotoBrowserCell *cell = nil;
+    JMPhotoBrowseCell *cell = nil;
     if (self.reusableCells.count > 0) {
         cell = [self.reusableCells firstObject];
         [self.reusableCells removeObject:cell];
+        cell.transform = CGAffineTransformIdentity;
     }
     
     return cell;
 }
 
-
-#pragma mark -
-#pragma mark UIScrollViewDelegate
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+- (void)didBrowse
 {
     @synchronized (self) {
-            
-        JMPhotoBrowserCell *firstCell = [self.showCells firstObject];
-        JMPhotoBrowserCell *lastCell = [self.showCells lastObject];
+        if (self.delegate && [self.delegate respondsToSelector:@selector(browseViewWillBrowse:showCells:)]) {
+            [self.delegate browseViewWillBrowse:self showCells:self.showCells];
+        }
+        
+        JMPhotoBrowseCell *firstCell = [self.showCells firstObject];
+        JMPhotoBrowseCell *lastCell = [self.showCells lastObject];
         
         //remove before
-        if (CGRectGetMaxX(firstCell.frame) < scrollView.contentOffset.x) {
+        if (CGRectGetMaxX(firstCell.frame) < self.scroll.contentOffset.x) {
             [self removeCellWithIndex:firstCell.index];
             
         }
         
         //remove after
-        if (CGRectGetMinX(lastCell.frame) > scrollView.contentOffset.x + CGRectGetWidth(self.frame)) {
+        if (CGRectGetMinX(lastCell.frame) > self.scroll.contentOffset.x + CGRectGetWidth(self.frame)) {
             [self removeCellWithIndex:lastCell.index];
             
         }
         
         //add before
-        if (CGRectGetMinX(firstCell.frame) > scrollView.contentOffset.x) {
+        if (CGRectGetMinX(firstCell.frame) > self.scroll.contentOffset.x) {
             
             if (firstCell.index > 0) {
                 [self addCellWithIndex:firstCell.index - 1 isBefore:YES];
@@ -291,12 +267,40 @@
         }
         
         //add after
-        if (CGRectGetMaxX(lastCell.frame) < scrollView.contentOffset.x + CGRectGetWidth(self.frame)) {
+        if (CGRectGetMaxX(lastCell.frame) < self.scroll.contentOffset.x + CGRectGetWidth(self.frame)) {
             if (lastCell.index < [self getNumbersOfCell]) {
                 [self addCellWithIndex:lastCell.index + 1 isBefore:NO];
             }
         }
+        
+        if (self.delegate && [self.delegate respondsToSelector:@selector(browseViewDidBrowse:showCells:)]) {
+            [self.delegate browseViewDidBrowse:self showCells:self.showCells];
+        }
     }
 }
+
+
+#pragma mark -
+#pragma mark touchEvent
+
+- (void)touchUpInside:(JMBrowseCell *)sender
+{
+    NSLog(@"sender=%@", sender);
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(browseView:didSelectCell:)]) {
+        [self.delegate browseView:self didSelectCell:sender];
+    }
+}
+
+
+
+#pragma mark -
+#pragma mark UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [self didBrowse];
+}
+
 
 @end

@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "JMBrowseCell.h"
 
-@interface JMPhotoBrowserCell : UIView
+@interface JMPhotoBrowseCell : JMBrowseCell
 
-@property (nonatomic, retain) NSMutableArray *userSubviews;
-@property (nonatomic, assign) NSInteger index;
+@property (nonatomic, strong) NSMutableArray *userSubviews;
 
 
 

@@ -7,9 +7,9 @@
 //
 
 #import "ViewController.h"
-#import "JMPhotoBrowserView.h"
+#import "JMPhotoBrowseView.h"
 
-@interface ViewController ()
+@interface ViewController () <JMBrowseViewDelegate, JMBrowseDataSource>
 
 @end
 
@@ -17,26 +17,60 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    JMPhotoBrowserView *view = [[JMPhotoBrowserView alloc] initWithFrame:self.view.bounds];
+    JMPhotoBrowseView *view = [[JMPhotoBrowseView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:view];
     view.delegate = self;
     view.dataSource = self;
 }
 
 
+- (void)browseViewDidLoad:(JMBrowseView *)browseView showCells:(NSArray *)cells
+{
+    
+    [self changeCells:cells withBrowseView:browseView];
+}
+
+- (void)browserViewDidBrowse:(JMBrowseView *)browseView showCells:(NSArray *)cells
+{
+    NSLog(@"scrollView=%@", browseView);
+    
+    [self changeCells:cells withBrowseView:browseView];
+}
+
+- (void)changeCells:(NSArray *)cells withBrowseView:(JMBrowseView *)browseView
+{
+    for (int i = 0; i < cells.count; i++) {
+        JMPhotoBrowseCell *cell = [cells objectAtIndex:i];
+        
+        CGFloat offsetX = CGRectGetMidX(cell.frame) - (browseView.contentOffset.x + CGRectGetMidX(browseView.bounds));
+        if (offsetX < - CGRectGetMidX(browseView.bounds)) {
+            offsetX = - CGRectGetMidX(browseView.bounds);
+        }
+        if (offsetX > CGRectGetMidX(browseView.bounds)) {
+            offsetX = CGRectGetMidX(browseView.bounds);
+        }
+        
+        CGFloat rate = fabs(offsetX / CGRectGetMidX(browseView.bounds)) * 0.2;
+        CGFloat scale = 1 - rate;
+        
+        cell.alpha = (1-rate* 2);
+        cell.transform = CGAffineTransformScale(CGAffineTransformIdentity, scale, scale);
+    }
+}
+
 //JMPhotoBrowserDataSource
 
-- (NSInteger)numberOfPhotosInPhotoBrowser:(JMPhotoBrowserView *)browser
+- (NSInteger)numberOfCellsInBrowseView:(JMBrowseView *)browseView
 {
     return 9;
 }
 
-- (JMPhotoBrowserCell *)photoBrowser:(JMPhotoBrowserView *)browser cellAtIndex:(NSInteger)index
+- (JMBrowseCell *)browseView:(JMBrowseView *)browseView cellAtIndex:(NSInteger)index
 {
     NSArray *images = @[@"PB0.jpg", @"PB1.jpg", @"PB2.jpg", @"PB3.jpg", @"PB4.jpg", @"PB5.jpg", @"PB6.jpg", @"PB7.jpg", @"PB8.jpg"];
-    JMPhotoBrowserCell *cell = [browser dequeueReusableCell];
+    JMBrowseCell *cell = [browseView dequeueReusableCell];
     if (!cell) {
-        cell = [[JMPhotoBrowserCell alloc] init];
+        cell = [[JMPhotoBrowseCell alloc] init];
     }
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
@@ -49,20 +83,21 @@
 
 //JMPhotoBrowserViewDelegate
 
-- (CGFloat)photoBrowser:(JMPhotoBrowserView *)browser heightForIndex:(NSInteger)index
-{
-    return CGRectGetHeight(self.view.bounds)/2;
-}
+//- (CGFloat)photoBrowser:(JMPhotoBrowserView *)browser heightForIndex:(NSInteger)index
+//{
+//    return CGRectGetHeight(self.view.bounds)/2;
+//}
 
-- (CGFloat)photoBrowser:(JMPhotoBrowserView *)browser widthForIndex:(NSInteger)index
+- (CGFloat)browseView:(JMBrowseView *)browseView widthForIndex:(NSInteger)index
 {
     return CGRectGetWidth(self.view.bounds)/2;
 }
 
-- (void)photoBrowser:(JMPhotoBrowserView *)browser didSelectAtIndex:(NSInteger)index
+- (void)browseView:(JMBrowseView *)browseView didSelectCell:(JMBrowseCell *)cell
 {
-    NSLog(@"selectAtIndex===%ld", index);
+    NSLog(@"selectAtIndex===%@", cell);
 }
+
 
 
 @end

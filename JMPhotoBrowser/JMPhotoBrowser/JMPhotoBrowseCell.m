@@ -6,9 +6,9 @@
 //  Copyright (c) 2015年 chenjiemin. All rights reserved.
 //
 
-#import "JMPhotoBrowserCell.h"
+#import "JMPhotoBrowseCell.h"
 
-@implementation JMPhotoBrowserCell
+@implementation JMPhotoBrowseCell
 @synthesize userSubviews = _userSubviews;
 @synthesize index = _index;
 
