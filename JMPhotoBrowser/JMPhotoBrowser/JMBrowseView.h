@@ -36,6 +36,7 @@
 @property (nonatomic, weak) id <JMBrowseViewDelegate> delegate;
 @property (nonatomic, strong) UIScrollView *scroll;
 @property (nonatomic, assign) CGPoint contentOffset;
+@property (nonatomic, assign) BOOL pagingEnabled;
 
 - (JMBrowseCell *)dequeueReusableCell;
 

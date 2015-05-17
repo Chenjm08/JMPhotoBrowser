@@ -13,6 +13,8 @@
 @synthesize delegate = _delegate;
 @synthesize scroll = _scroll;
 @synthesize contentOffset = _contentOffset;
+@synthesize pagingEnabled = _pagingEnabled;
+
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
@@ -59,6 +61,11 @@
     }];
 }
 
+
+- (void)setPagingEnabled:(BOOL)pagingEnabled
+{
+    self.scroll.pagingEnabled = pagingEnabled;
+}
 
 - (void)didBrowse
 {

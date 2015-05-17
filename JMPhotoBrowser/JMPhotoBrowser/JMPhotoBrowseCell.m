@@ -10,7 +10,9 @@
 
 @implementation JMPhotoBrowseCell
 @synthesize userSubviews = _userSubviews;
-@synthesize index = _index;
+@synthesize imageView = _imageView;
+@synthesize label = _label;
+
 
 - (instancetype)init
 {
@@ -18,6 +20,9 @@
     if (self) {
         self.userSubviews = [[NSMutableArray alloc] init];
         self.index = 0;
+        
+        [self initImgView];
+        [self initLabel];
     }
     
     return self;
@@ -28,9 +33,30 @@
     self = [super initWithFrame:frame];
     if (self) {
         self.userSubviews = [[NSMutableArray alloc] init];
+        
+        [self initImgView];
+        [self initLabel];
     }
     
     return self;
+}
+
+- (void)initImgView
+{
+    self.imageView = ({
+        UIImageView *imgView = [[UIImageView alloc] initWithFrame:self.bounds];
+        [super addSubview:imgView];
+        imgView;
+    });
+}
+
+- (void)initLabel
+{
+    self.label = ({
+        UILabel *label = [[UILabel alloc] init];
+        [super addSubview:label];
+        label;
+    });
 }
 
 - (void)addSubview:(UIView *)view
@@ -52,6 +78,8 @@
     for (UIView *view in self.userSubviews) {
         [view removeFromSuperview];
     }
+    
+    [self.userSubviews removeAllObjects];
 }
 
 

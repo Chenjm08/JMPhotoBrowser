@@ -12,6 +12,8 @@
 @interface JMPhotoBrowseCell : JMBrowseCell
 
 @property (nonatomic, strong) NSMutableArray *userSubviews;
+@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UILabel *label;
 
 
 

@@ -173,13 +173,12 @@
         JMBrowseCell *cell = [self.dataSource browseView:self cellAtIndex:index];
         
         [self.scroll addSubview:cell];
-        cell.backgroundColor = [UIColor whiteColor];
         cell.frame = CGRectMake(x, y, w, CGRectGetHeight(self.bounds));
         cell.index = index;
         
         [cell addTarget:self action:@selector(touchUpInside:) forControlEvents:UIControlEventTouchUpInside];
         
-        NSLog(@"add cell with index = %d", index);
+//        NSLog(@"add cell with index = %d", index);
 
         if (isBefore) {
             [self.showCells insertObject:cell atIndex:0];
@@ -192,7 +191,7 @@
 
 - (void)removeCellWithIndex:(NSInteger)index
 {
-    NSLog(@"remove cell with index = %d", index);
+//    NSLog(@"remove cell with index = %d", index);
 
     __block NSInteger arrayIndex = -1;
     [self.showCells enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -221,6 +220,10 @@
 {
     if (cell) {
         [self.reusableCells addObject:cell];
+        
+        cell.transform = CGAffineTransformIdentity;
+        cell.imageView.transform = CGAffineTransformIdentity;
+        cell.label.transform = CGAffineTransformIdentity;
     }
 }
 
@@ -230,7 +233,6 @@
     if (self.reusableCells.count > 0) {
         cell = [self.reusableCells firstObject];
         [self.reusableCells removeObject:cell];
-        cell.transform = CGAffineTransformIdentity;
     }
     
     return cell;
@@ -285,7 +287,7 @@
 
 - (void)touchUpInside:(JMBrowseCell *)sender
 {
-    NSLog(@"sender=%@", sender);
+//    NSLog(@"sender=%@", sender);
     
     if (self.delegate && [self.delegate respondsToSelector:@selector(browseView:didSelectCell:)]) {
         [self.delegate browseView:self didSelectCell:sender];
